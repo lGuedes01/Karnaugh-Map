@@ -1,9 +1,15 @@
 // Testes da lógica: rode com  node tests/logic.test.js
 import assert from 'node:assert/strict';
-import {
+import fs from 'node:fs';
+import vm from 'node:vm';
+
+// js/logic.js é um script comum (funciona até abrindo o site direto do arquivo); aqui ele roda num contexto isolado.
+const ctx = vm.createContext({ URLSearchParams });
+vm.runInContext(fs.readFileSync(new URL('../js/logic.js', import.meta.url), 'utf8'), ctx);
+const {
   minimize, analyzeCells, expressionText, parseExpression, evaluate, checkAnswer,
   paramsToMap, mapToParams, parseList, layout, DEF_VARS,
-} from '../js/logic.js';
+} = ctx.Karnaugh;
 
 let passed = 0;
 const test = (name, fn) => { fn(); passed++; };
@@ -124,7 +130,7 @@ test('correção de exercícios', () => {
 test('link de compartilhamento: ida e volta e validação', () => {
   const map = { n: 4, name: 'G', vars: ['A', 'B', 'C', 'D', 'E', 'F'], data: { 4: cellsFrom(4, [1, 3], [0]) }, view: 'pos' };
   const back = paramsToMap('?' + mapToParams(map).toString());
-  assert.deepEqual(back.cells, map.data[4]);
+  assert.deepEqual([...back.cells], map.data[4]);
   assert.equal(back.name, 'G');
   assert.equal(back.view, 'pos');
   assert.equal(paramsToMap('?n=4&m=1,99'), null);
@@ -133,7 +139,7 @@ test('link de compartilhamento: ida e volta e validação', () => {
   assert.equal(paramsToMap('?n=4&m=1,2<script>'), null);
   const evil = paramsToMap('?n=2&m=1&f=<img>&v=<b>,x');
   assert.equal(evil.name, 'F');
-  assert.deepEqual(evil.vars.slice(0, 2), ['A', 'B']);
+  assert.deepEqual([...evil.vars.slice(0, 2)], ['A', 'B']);
 });
 
 test('lista de mintermos e layout', () => {

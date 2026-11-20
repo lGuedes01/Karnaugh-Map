@@ -1,7 +1,9 @@
 // Página de teoria: desenha os mapas de exemplo com os grupos da solução mínima.
-import { DEF_VARS, analyzeCells, mapToParams } from './logic.js';
-import { gridHTML, expressionHTML } from './render.js';
-import { initTheme } from './common.js';
+(function (K) {
+'use strict';
+const {DEF_VARS, analyzeCells, mapToParams} = K;
+const {gridHTML, expressionHTML} = K;
+const {initTheme} = K;
 
 initTheme();
 
@@ -19,7 +21,7 @@ document.querySelectorAll('.figmap').forEach(el => {
   el.innerHTML = `<div class="map-wrap">${gridHTML(n, cells, groups, { readonly: true, varNames: DEF_VARS })}</div>
     <div class="answer-row">
       <span class="formula small"><span class="fn">F</span> <span class="op">=</span> ${expressionHTML(an, DEF_VARS, kind, true)}</span>
-      <a class="btn ghost" href="./?${mapToParams(map).toString()}">Abrir na ferramenta</a>
+      <a class="btn ghost" href="index.html?${mapToParams(map).toString()}">Abrir na ferramenta</a>
     </div>`;
 });
 
@@ -32,3 +34,4 @@ function highlight(target, on) {
 }
 document.addEventListener('mouseover', e => highlight(e.target, true));
 document.addEventListener('mouseout', e => highlight(e.target, false));
+})(globalThis.Karnaugh = globalThis.Karnaugh || {});

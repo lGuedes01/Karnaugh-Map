@@ -1,10 +1,12 @@
 // Núcleo lógico do Mapa de Karnaugh: layout, minimização exata (Quine–McCluskey + cobertura mínima),
 // formatação de termos e leitura de expressões digitadas. Sem dependência do DOM, para poder testar no Node.
+(function (K) {
+'use strict';
 
-export const DEF_VARS = ['A', 'B', 'C', 'D', 'E', 'F'];
-export const VCH = ['0', '1', 'X'];
-export const MIN_VARS = 2;
-export const MAX_VARS = 6;
+const DEF_VARS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const VCH = ['0', '1', 'X'];
+const MIN_VARS = 2;
+const MAX_VARS = 6;
 const GRAY = { 1: [0, 1], 2: [0, 1, 3, 2] };
 const INNER_SPLIT = { 2: [1, 1], 3: [1, 2], 4: [2, 2] };
 
@@ -13,7 +15,7 @@ const INNER_SPLIT = { 2: [1, 1], 3: [1, 2], 4: [2, 2] };
  * escolhem o submapa 4×4 (5 variáveis: 2 submapas lado a lado; 6: grade 2×2 em código Gray).
  * Coordenadas globais (gr, gc) servem para a navegação por teclado.
  */
-export function layout(n) {
+function layout(n) {
   const inner = Math.min(n, 4);
   const [rv, cv] = INNER_SPLIT[inner];
   const R = 1 << rv, C = 1 << cv;
@@ -38,7 +40,7 @@ export function layout(n) {
 const pc32 = x => { x = x - ((x >>> 1) & 0x55555555); x = (x & 0x33333333) + ((x >>> 2) & 0x33333333); return (((x + (x >>> 4)) & 0x0F0F0F0F) * 0x01010101) >>> 24; };
 const pcount = (lo, hi) => pc32(lo) + pc32(hi);
 const bitOf = i => i < 32 ? [(1 << i) >>> 0, 0] : [0, (1 << (i - 32)) >>> 0];
-export function popcount(x) { let c = 0; while (x) { x &= x - 1; c++; } return c; }
+function popcount(x) { let c = 0; while (x) { x &= x - 1; c++; } return c; }
 
 /**
  * Minimiza uma função de n variáveis (2 a 6).
@@ -47,7 +49,7 @@ export function popcount(x) { let c = 0; while (x) { x &= x - 1; c++; } return c
  * Critério: menos termos e, no empate, menos literais. A busca é exata; só em casos enormes de 6 variáveis
  * para no limite de nós e devolve a melhor cobertura achada (exact: false).
  */
-export function minimize(n, isTarget, isDc, nodeLimit = 250000) {
+function minimize(n, isTarget, isDc, nodeLimit = 250000) {
   const N = 1 << n;
   const ones = [];
   for (let x = 0; x < N; x++) if (isTarget[x]) ones.push(x);
@@ -163,10 +165,10 @@ export function minimize(n, isTarget, isDc, nodeLimit = 250000) {
   return { terms, primes: primes.slice().sort(termOrder), essentials, afterEssentials, dcUsed, constant: null, exact };
 }
 
-export function termOrder(a, b) { return a.lits - b.lits || b.m - a.m || a.v - b.v; }
+function termOrder(a, b) { return a.lits - b.lits || b.m - a.m || a.v - b.v; }
 
 /** Analisa as células (0, 1, 2 = X) de um mapa de n variáveis nas duas formas. */
-export function analyzeCells(n, cells) {
+function analyzeCells(n, cells) {
   const N = 1 << n;
   const one = [], zero = [], dc = [], ones = [], zeros = [], dcs = [];
   for (let x = 0; x < N; x++) {
@@ -181,7 +183,7 @@ export function analyzeCells(n, cells) {
 }
 
 /** Camadas para desenhar contornos sobrepostos sem que um esconda o outro; cor por índice. */
-export function assignLayers(terms) {
+function assignLayers(terms) {
   terms.forEach((t, i) => {
     const used = new Set();
     for (let j = 0; j < i; j++) if (terms[j].cells.some(x => t.cells.includes(x))) used.add(terms[j].layer);
@@ -193,7 +195,7 @@ export function assignLayers(terms) {
 }
 
 /** Literais de um termo. forPos inverte a leitura (termo-soma de um grupo de zeros). */
-export function literals(n, varNames, t, forPos) {
+function literals(n, varNames, t, forPos) {
   const out = [];
   for (let i = 0; i < n; i++) {
     const b = 1 << (n - 1 - i);
@@ -204,7 +206,7 @@ export function literals(n, varNames, t, forPos) {
   return out;
 }
 
-export function termText(n, varNames, t, forPos) {
+function termText(n, varNames, t, forPos) {
   const ls = literals(n, varNames, t, forPos);
   const multi = varNames.some(v => v.length > 1);
   if (forPos) {
@@ -215,7 +217,7 @@ export function termText(n, varNames, t, forPos) {
 }
 
 /** Texto da expressão mínima, já tratando as constantes. */
-export function expressionText(an, varNames, kind) {
+function expressionText(an, varNames, kind) {
   const { n } = an;
   if (!an.ones.length) return '0';
   if (kind === 'sop') {
@@ -233,7 +235,7 @@ export function expressionText(an, varNames, kind) {
  * Negação: ' ou ’ ou ̅ depois, ou ~ ! ¬ antes. E: justaposição, · * . &. OU: + |.
  * Devolve uma árvore {t: 'var'|'not'|'and'|'or'|'const'} ou lança Error com mensagem em português.
  */
-export function parseExpression(src, varNames) {
+function parseExpression(src, varNames) {
   const text = String(src).normalize('NFC');
   if (text.length > 300) throw new Error('A expressão é longa demais.');
   const names = varNames.slice().sort((a, b) => b.length - a.length);
@@ -297,7 +299,7 @@ export function parseExpression(src, varNames) {
   return tree;
 }
 
-export function evaluate(node, n, x) {
+function evaluate(node, n, x) {
   switch (node.t) {
     case 'var': return ((x >> (n - 1 - node.idx)) & 1) === 1;
     case 'const': return node.v;
@@ -311,7 +313,7 @@ export function evaluate(node, n, x) {
 const isLiteral = nd => nd.t === 'var' || (nd.t === 'not' && nd.item.t === 'var');
 
 /** Estrutura da expressão: forma SOP/POS, número de termos e literais (null se não estiver na forma). */
-export function shapeOf(tree) {
+function shapeOf(tree) {
   const flat = (nd, type) => nd.t === type ? nd.items.flatMap(it => flat(it, type)) : [nd];
   const sopTerms = flat(tree, 'or');
   const sop = sopTerms.every(tm => flat(tm, 'and').every(isLiteral))
@@ -326,7 +328,7 @@ export function shapeOf(tree) {
  * Corrige a resposta de um exercício. kind: 'sop' ou 'pos'.
  * Retorna { status: 'erro'|'errada'|'nao-forma'|'nao-minima'|'certa', message, wrong: [mintermos] }.
  */
-export function checkAnswer(src, n, varNames, cells, kind) {
+function checkAnswer(src, n, varNames, cells, kind) {
   let tree;
   try { tree = parseExpression(src, varNames); } catch (e) { return { status: 'erro', message: e.message, wrong: [] }; }
   const N = 1 << n;
@@ -358,7 +360,7 @@ const NAME_RE = /^[A-Za-z][A-Za-z0-9_]{0,2}$/;
 const FN_RE = /^[A-Za-z][A-Za-z0-9_]{0,5}$/;
 
 /** Converte um mapa em parâmetros de URL legíveis: ?n=4&f=F&v=A,B,C,D&m=1,3&d=0,2 */
-export function mapToParams(map) {
+function mapToParams(map) {
   const cells = map.data[map.n];
   const ones = [], dcs = [];
   cells.forEach((v, i) => { if (v === 1) ones.push(i); else if (v === 2) dcs.push(i); });
@@ -377,7 +379,7 @@ export function mapToParams(map) {
  * Lê um mapa vindo da URL. Tudo é validado de forma rígida: números inteiros dentro do mapa,
  * nomes curtos só com letras, dígitos e _. Qualquer coisa fora disso é recusada (retorna null).
  */
-export function paramsToMap(search) {
+function paramsToMap(search) {
   let p;
   try { p = new URLSearchParams(search); } catch (e) { return null; }
   if (!p.has('n') || !p.has('m')) return null;
@@ -410,7 +412,7 @@ export function paramsToMap(search) {
 }
 
 /** Lê listas como "1, 3, 7, 11-15" (também aceita colar Σm(…)). */
-export function parseList(str, n) {
+function parseList(str, n) {
   const N = 1 << n;
   const out = new Set();
   const clean = String(str).replace(/[^\d,;\s\-]/g, ' ');
@@ -424,3 +426,6 @@ export function parseList(str, n) {
   }
   return out;
 }
+
+Object.assign(K, { DEF_VARS, VCH, MIN_VARS, MAX_VARS, layout, popcount, minimize, termOrder, analyzeCells, assignLayers, literals, termText, expressionText, parseExpression, evaluate, shapeOf, checkAnswer, mapToParams, paramsToMap, parseList });
+})(globalThis.Karnaugh = globalThis.Karnaugh || {});

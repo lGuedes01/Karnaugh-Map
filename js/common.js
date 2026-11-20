@@ -1,8 +1,10 @@
 // Comportamentos comuns a todas as páginas: botão de tema e cópia para a área de transferência.
+(function (K) {
+'use strict';
 const KEY = 'karnaugh-theme';
 const LABELS = { auto: 'Tema: automático', light: 'Tema: claro', dark: 'Tema: escuro' };
 
-export function initTheme() {
+function initTheme() {
   const btn = document.getElementById('theme-btn');
   if (!btn) return;
   let mode = 'auto';
@@ -21,7 +23,7 @@ export function initTheme() {
 }
 
 /** Copia texto; usa a API moderna e, se falhar, um campo temporário. Devolve uma Promise<boolean>. */
-export function copyText(text) {
+function copyText(text) {
   const fallback = () => {
     try {
       const ta = document.createElement('textarea');
@@ -43,8 +45,11 @@ export function copyText(text) {
   return Promise.resolve(fallback());
 }
 
-export function flashButton(btn, ok, okText = 'Copiado', restore) {
+function flashButton(btn, ok, okText = 'Copiado', restore) {
   const original = restore || btn.textContent;
   btn.textContent = ok ? okText : 'Não deu para copiar';
   setTimeout(() => { btn.textContent = original; }, 1600);
 }
+
+Object.assign(K, { initTheme, copyText, flashButton });
+})(globalThis.Karnaugh = globalThis.Karnaugh || {});

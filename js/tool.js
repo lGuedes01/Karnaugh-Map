@@ -1,7 +1,9 @@
 // Página principal: vários mapas de Karnaugh editáveis, com simplificação em tempo real.
-import { DEF_VARS, VCH, MIN_VARS, MAX_VARS, layout, analyzeCells, expressionText, mapToParams, paramsToMap, parseList } from './logic.js';
-import { esc, effectiveVars, gridHTML, expressionHTML, stats, stepsHTML, circuitSVG } from './render.js';
-import { initTheme, copyText, flashButton } from './common.js';
+(function (K) {
+'use strict';
+const {DEF_VARS, VCH, MIN_VARS, MAX_VARS, layout, analyzeCells, expressionText, mapToParams, paramsToMap, parseList} = K;
+const {esc, effectiveVars, gridHTML, expressionHTML, stats, stepsHTML, circuitSVG} = K;
+const {initTheme, copyText, flashButton} = K;
 
 initTheme();
 
@@ -317,7 +319,7 @@ mapsEl.addEventListener('click', e => {
       copyText(btn.dataset.text).then(ok => flashButton(btn, ok, 'Copiado', 'Copiar'));
       break;
     case 'share': {
-      const url = `${location.origin}${location.pathname}?${mapToParams(map).toString()}`;
+      const url = `${location.href.split(/[?#]/)[0]}?${mapToParams(map).toString()}`;
       const row = card.querySelector('.share-row');
       const input = row.querySelector('.share-url');
       input.value = url;
@@ -430,3 +432,4 @@ mapsEl.addEventListener('mouseout', e => highlight(e.target, false));
 
 renderAll();
 if (incomingMessage) showToast(incomingMessage, false);
+})(globalThis.Karnaugh = globalThis.Karnaugh || {});

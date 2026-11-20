@@ -1,7 +1,9 @@
 // Página de exercícios: gera mapas aleatórios e corrige a expressão digitada.
-import { DEF_VARS, analyzeCells, checkAnswer, mapToParams } from './logic.js';
-import { gridHTML, expressionHTML, stepsHTML } from './render.js';
-import { initTheme } from './common.js';
+(function (K) {
+'use strict';
+const {DEF_VARS, analyzeCells, checkAnswer, mapToParams} = K;
+const {gridHTML, expressionHTML, stepsHTML} = K;
+const {initTheme} = K;
 
 initTheme();
 
@@ -60,7 +62,7 @@ function newExercise() {
   $('answer').value = '';
   $('hint-btn').textContent = 'Dica';
   const map = { n: ex.n, name: 'F', vars: DEF_VARS.slice(), data: { [ex.n]: ex.cells }, view: ex.kind };
-  $('open-tool').href = `./?${mapToParams(map).toString()}`;
+  $('open-tool').href = `index.html?${mapToParams(map).toString()}`;
 }
 
 function showFeedback(cls, html) {
@@ -162,3 +164,4 @@ bindSeg('opt-dc', 'dc', { get: () => (opts.dc ? 1 : 0), set: v => { opts.dc = v 
 
 updateScore();
 newExercise();
+})(globalThis.Karnaugh = globalThis.Karnaugh || {});

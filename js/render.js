@@ -1,18 +1,20 @@
 // Geração de HTML/SVG compartilhada entre as páginas. Sem estilos inline: tudo por classes,
 // para a Política de Segurança de Conteúdo poder proibir CSS e JS embutidos.
-import { layout, literals, VCH, DEF_VARS } from './logic.js';
+(function (K) {
+'use strict';
+const {layout, literals, VCH, DEF_VARS} = K;
 
-export const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const bits = (x, k) => x.toString(2).padStart(k, '0');
 
 /** Nomes efetivos das variáveis (campo vazio usa o padrão). */
-export const effectiveVars = map => DEF_VARS.map((d, i) => ((map.vars[i] || '').trim() || d));
+const effectiveVars = map => DEF_VARS.map((d, i) => ((map.vars[i] || '').trim() || d));
 
 /**
  * HTML do mapa. groups: termos {cells, layer, color} a contornar.
  * opts: { readonly, marks: Set de mintermos a destacar como erro, varNames }
  */
-export function gridHTML(n, cells, groups, opts = {}) {
+function gridHTML(n, cells, groups, opts = {}) {
   const L = layout(n);
   const names = opts.varNames || DEF_VARS;
   const multi = names.slice(0, n).some(v => v.length > 1);
@@ -71,7 +73,7 @@ export function gridHTML(n, cells, groups, opts = {}) {
 const litHTML = l => l.neg ? `<span class="neg">${esc(l.name)}</span>` : esc(l.name);
 
 /** Termo em HTML. */
-export function termHTML(n, names, t, forPos) {
+function termHTML(n, names, t, forPos) {
   const ls = literals(n, names, t, forPos);
   if (forPos) {
     const inner = ls.map(litHTML).join('<span class="op"> + </span>');
@@ -81,7 +83,7 @@ export function termHTML(n, names, t, forPos) {
 }
 
 /** Lado direito da expressão em HTML; termos coloridos (com data-g) quando active. */
-export function expressionHTML(an, names, kind, active) {
+function expressionHTML(an, names, kind, active) {
   const { n } = an;
   if (!an.ones.length) return '<span class="const">0</span>';
   if (kind === 'sop' && an.sop.constant === 1) return '<span class="const">1</span>';
@@ -94,7 +96,7 @@ export function expressionHTML(an, names, kind, active) {
   return kind === 'sop' ? parts.join('<span class="op"> + </span>') : parts.join('');
 }
 
-export function stats(an, kind) {
+function stats(an, kind) {
   const res = kind === 'sop' ? an.sop : an.pos;
   const constant = !an.ones.length || (kind === 'sop' ? an.sop.constant === 1 : !an.zeros.length);
   if (constant) return null;
@@ -104,7 +106,7 @@ export function stats(an, kind) {
 const plural = (k, one, many) => `${k} ${k === 1 ? one : many}`;
 
 /** Explicação passo a passo da simplificação. */
-export function stepsHTML(an, names, kind, fname) {
+function stepsHTML(an, names, kind, fname) {
   const { n } = an;
   const res = kind === 'sop' ? an.sop : an.pos;
   const forPos = kind === 'pos';
@@ -174,7 +176,7 @@ function orPath(x, y, w, h) {
 const orBackX = (x, y, w, h, yi) => { const t = (yi - y) / h; return x + 2 * t * (1 - t) * w * 0.35; };
 
 /** Circuito em dois níveis (AND→OR para SOP, OR→AND para POS) em SVG. */
-export function circuitSVG(an, names, kind, fname) {
+function circuitSVG(an, names, kind, fname) {
   const { n } = an;
   const forPos = kind === 'pos';
   const nm = esc(fname);
@@ -274,3 +276,6 @@ export function circuitSVG(an, names, kind, fname) {
   const height = Math.max(bottom, y2 + H2) + 16;
   return `<svg class="circ" viewBox="0 0 ${width} ${height}" width="${width}" role="img" aria-label="Circuito lógico de ${nm} com ${T} portas no primeiro nível">${svg}</svg>`;
 }
+
+Object.assign(K, { esc, effectiveVars, gridHTML, termHTML, expressionHTML, stats, stepsHTML, circuitSVG });
+})(globalThis.Karnaugh = globalThis.Karnaugh || {});

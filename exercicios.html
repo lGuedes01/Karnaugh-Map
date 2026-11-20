@@ -14,14 +14,17 @@
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
 <script src="js/theme-init.js"></script>
-<script type="module" src="js/exercises.js"></script>
+<script src="js/logic.js" defer></script>
+<script src="js/render.js" defer></script>
+<script src="js/common.js" defer></script>
+<script src="js/exercises.js" defer></script>
 </head>
 <body>
 <header class="site-nav">
   <div class="inner">
-    <a class="brand" href="./"><img src="img/favicon.svg" alt="">Mapa de Karnaugh</a>
+    <a class="brand" href="index.html"><img src="img/favicon.svg" alt="">Mapa de Karnaugh</a>
     <nav aria-label="Seções">
-      <a href="./">Ferramenta</a>
+      <a href="index.html">Ferramenta</a>
       <a href="exercicios.html" aria-current="page">Exercícios</a>
       <a href="teoria.html">Teoria</a>
     </nav>
@@ -58,7 +61,7 @@
         <button type="button" class="btn" id="hint-btn">Dica</button>
         <button type="button" class="btn" id="reveal-btn">Mostrar resposta</button>
         <button type="button" class="btn" id="next-btn">Próximo exercício</button>
-        <a class="btn ghost" id="open-tool" href="./">Abrir na ferramenta</a>
+        <a class="btn ghost" id="open-tool" href="index.html">Abrir na ferramenta</a>
       </div>
       <section id="solution" hidden aria-label="Resolução">
         <div class="result">
