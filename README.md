@@ -1,5 +1,7 @@
 # Mapa de Karnaugh
 
+> **Sobre este projeto:** esta aplicação foi feita completamente em *vibe coding* (desenvolvida com auxílio de IA), com o único intuito de ajudar quem está estudando e precisa de uma ferramenta prática para fazer mapas de Karnaugh.
+
 Ferramenta online e gratuita para estudar e simplificar funções lógicas com mapas de Karnaugh.
 
 **Site:** https://lguedes01.github.io/Karnaugh-Map/
