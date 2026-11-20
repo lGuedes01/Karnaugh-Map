@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Exercícios de mapa de Karnaugh</title>
+<meta name="description" content="Pratique a simplificação com mapas de Karnaugh: mapas aleatórios de 2 a 5 variáveis, com ou sem X, correção automática em SOP e POS e passo a passo da resposta.">
+<meta property="og:title" content="Exercícios de mapa de Karnaugh">
+<meta property="og:description" content="Mapas aleatórios com correção automática e passo a passo.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme-init.js"></script>
+<script type="module" src="js/exercises.js"></script>
+</head>
+<body>
+<header class="site-nav">
+  <div class="inner">
+    <a class="brand" href="./"><img src="img/favicon.svg" alt="">Mapa de Karnaugh</a>
+    <nav aria-label="Seções">
+      <a href="./">Ferramenta</a>
+      <a href="exercicios.html" aria-current="page">Exercícios</a>
+      <a href="teoria.html">Teoria</a>
+    </nav>
+    <button type="button" class="btn ghost theme-btn" id="theme-btn">Tema: automático</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Exercícios</h1>
+      <p class="help">Simplifique o mapa e digite a expressão mínima. A correção diz se ela é equivalente ao mapa, se está na forma pedida e se é mesmo a mínima. Só a primeira tentativa de cada exercício conta no placar.</p>
+    </div>
+  </div>
+
+  <div class="ex-layout">
+    <main class="panel" aria-labelledby="ex-title">
+      <div class="card-head">
+        <h2 id="ex-title">Exercício 1</h2>
+        <span class="chip use" id="ex-kind">soma de produtos</span>
+      </div>
+      <p class="help" id="ex-prompt"></p>
+      <div class="map-wrap" id="ex-map"></div>
+      <form id="ex-form" novalidate>
+        <label class="sr" for="answer">Sua resposta</label>
+        <div class="answer-row">
+          <span class="fn">F =</span>
+          <input class="answer" id="answer" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="ex.: A'B + CD">
+          <button type="submit" class="btn primary">Corrigir</button>
+        </div>
+      </form>
+      <div class="feedback" id="feedback" role="status" hidden></div>
+      <div class="answer-row">
+        <button type="button" class="btn" id="hint-btn">Dica</button>
+        <button type="button" class="btn" id="reveal-btn">Mostrar resposta</button>
+        <button type="button" class="btn" id="next-btn">Próximo exercício</button>
+        <a class="btn ghost" id="open-tool" href="./">Abrir na ferramenta</a>
+      </div>
+      <section id="solution" hidden aria-label="Resolução">
+        <div class="result">
+          <div class="res-row">
+            <div class="res-label">Resposta mínima</div>
+            <div class="formula" id="sol-formula"></div>
+          </div>
+        </div>
+        <details class="extra" open><summary>Passo a passo</summary><div id="sol-steps"></div></details>
+      </section>
+    </main>
+
+    <aside class="panel" aria-label="Configurações e placar">
+      <div class="opt-group">
+        <span>Variáveis</span>
+        <div class="seg" role="group" aria-label="Número de variáveis" id="opt-n">
+          <button type="button" data-n="2" aria-pressed="false">2</button>
+          <button type="button" data-n="3" aria-pressed="false">3</button>
+          <button type="button" data-n="4" aria-pressed="true">4</button>
+          <button type="button" data-n="5" aria-pressed="false">5</button>
+        </div>
+      </div>
+      <div class="opt-group">
+        <span>Forma pedida</span>
+        <div class="seg text" role="group" aria-label="Forma pedida" id="opt-kind">
+          <button type="button" data-kind="sop" aria-pressed="true">Soma de produtos</button>
+          <button type="button" data-kind="pos" aria-pressed="false">Produto de somas</button>
+        </div>
+      </div>
+      <div class="opt-group">
+        <span>Irrelevantes</span>
+        <div class="seg text" role="group" aria-label="Incluir X" id="opt-dc">
+          <button type="button" data-dc="0" aria-pressed="false">Sem X</button>
+          <button type="button" data-dc="1" aria-pressed="true">Com X</button>
+        </div>
+      </div>
+      <div class="opt-group">
+        <span>Placar</span>
+        <div class="score">
+          <div><strong id="sc-ok">0</strong><span>acertos</span></div>
+          <div><strong id="sc-total">0</strong><span>exercícios</span></div>
+          <div><strong id="sc-streak">0</strong><span>sequência</span></div>
+        </div>
+        <button type="button" class="btn ghost" id="reset-score">Zerar placar</button>
+      </div>
+      <div class="opt-group">
+        <span>Como digitar</span>
+        <ul class="syntax">
+          <li>Negação: <code>A'</code>, <code>~A</code> ou <code>!A</code></li>
+          <li>E: <code>AB</code>, <code>A·B</code> ou <code>A*B</code></li>
+          <li>OU: <code>A + B</code></li>
+          <li>Parênteses: <code>(A + B')(C + D)</code></li>
+          <li>Letras minúsculas também valem.</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    <span>O placar fica guardado só neste navegador. O site não usa cookies nem coleta dados.</span>
+    <a href="https://github.com/lGuedes01/Karnaugh-Map">Código no GitHub</a>
+  </footer>
+</div>
+</body>
+</html>

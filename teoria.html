@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Como usar o mapa de Karnaugh</title>
+<meta name="description" content="Guia do mapa de Karnaugh: código Gray, como formar grupos, implicantes primos e essenciais, don't care (X), SOP e POS, mapas de 5 e 6 variáveis e erros comuns.">
+<meta property="og:title" content="Como usar o mapa de Karnaugh">
+<meta property="og:description" content="Guia curto com exemplos: grupos, implicantes, X, SOP e POS.">
+<meta property="og:type" content="article">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme-init.js"></script>
+<script type="module" src="js/theory.js"></script>
+</head>
+<body>
+<header class="site-nav">
+  <div class="inner">
+    <a class="brand" href="./"><img src="img/favicon.svg" alt="">Mapa de Karnaugh</a>
+    <nav aria-label="Seções">
+      <a href="./">Ferramenta</a>
+      <a href="exercicios.html">Exercícios</a>
+      <a href="teoria.html" aria-current="page">Teoria</a>
+    </nav>
+    <button type="button" class="btn ghost theme-btn" id="theme-btn">Tema: automático</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <main class="prose">
+    <h1>Como usar o mapa de Karnaugh</h1>
+    <p class="help">Um guia curto, com exemplos que você pode abrir na ferramenta.</p>
+    <ul class="toc" aria-label="Nesta página">
+      <li><a href="#o-que-e">O que é</a></li>
+      <li><a href="#gray">Código Gray</a></li>
+      <li><a href="#grupos">Grupos</a></li>
+      <li><a href="#leitura">Lendo um grupo</a></li>
+      <li><a href="#primos">Implicantes</a></li>
+      <li><a href="#x">Irrelevantes (X)</a></li>
+      <li><a href="#sop-pos">SOP e POS</a></li>
+      <li><a href="#grandes">5 e 6 variáveis</a></li>
+      <li><a href="#circuito">Circuito</a></li>
+      <li><a href="#erros">Erros comuns</a></li>
+    </ul>
+
+    <h2 id="o-que-e">O que é</h2>
+    <p>O mapa de Karnaugh é a tabela verdade redesenhada como uma grade. Cada célula é uma linha da tabela (um mintermo) e guarda a saída: 0, 1 ou X.
+      A grade é organizada de modo que células vizinhas diferem em uma única variável. Assim, juntar vizinhas em grupos elimina variáveis e a expressão fica menor.</p>
+    <p>O número pequeno no canto de cada célula é o índice do mintermo, o mesmo da tabela verdade. A primeira variável é a mais significativa: com A, B, C e D, a célula 6 é A=0, B=1, C=1, D=0.</p>
+
+    <h2 id="gray">Código Gray</h2>
+    <p>As linhas e colunas não seguem a ordem binária comum (00, 01, 10, 11). Elas seguem o código Gray, em que de um rótulo para o próximo muda só um bit:</p>
+    <table class="gray-table">
+      <thead><tr><th>Binário</th><th>Gray</th><th>O que muda</th></tr></thead>
+      <tbody>
+        <tr><td>00</td><td>00</td><td>–</td></tr>
+        <tr><td>01</td><td>01</td><td>o 2º bit</td></tr>
+        <tr><td>10</td><td>11</td><td>o 1º bit</td></tr>
+        <tr><td>11</td><td>10</td><td>o 2º bit</td></tr>
+      </tbody>
+    </table>
+    <p>Do último rótulo (10) de volta ao primeiro (00) também muda só um bit. Por isso as bordas opostas do mapa são vizinhas, como se ele fosse enrolado num cilindro, e os quatro cantos também formam um grupo.</p>
+
+    <h2 id="grupos">Como formar grupos</h2>
+    <ul>
+      <li>Um grupo é um retângulo com 1, 2, 4, 8 ou 16 células (sempre potência de 2).</li>
+      <li>Só entram células com 1 ou X; nunca um 0 (na soma de produtos).</li>
+      <li>Faça cada grupo o maior possível: quanto maior o grupo, menos variáveis sobram no termo.</li>
+      <li>Use o menor número de grupos que cubra todos os 1. Grupos podem se sobrepor.</li>
+      <li>O grupo pode atravessar as bordas: a coluna da esquerda é vizinha da coluna da direita, e a linha de cima é vizinha da de baixo.</li>
+    </ul>
+    <figure>
+      <div class="figmap" data-n="4" data-m="0,2,8,10,5,7,13,15"></div>
+      <figcaption>Os quatro cantos formam um grupo só (B̄D̄), porque as bordas se tocam. O quadrado do meio é BD.</figcaption>
+    </figure>
+
+    <h2 id="leitura">Lendo um grupo</h2>
+    <p>Olhe quais variáveis mantêm o mesmo valor em todas as células do grupo. Só elas ficam no termo: aparecem normais se valem 1 e barradas se valem 0. As que mudam dentro do grupo somem.</p>
+    <figure>
+      <div class="figmap" data-n="3" data-m="2,3,6,7,0"></div>
+      <figcaption>No grupo de 4 células, só B fica fixo (vale 1), então o termo é B. O grupo de 2 tem A=0 e C=0 fixos: Ā C̄.</figcaption>
+    </figure>
+    <p>Um grupo de 2<sup>k</sup> células elimina k variáveis. Num mapa de 4 variáveis: uma célula sozinha dá um termo de 4 literais; um par, 3; um grupo de 4, 2; um de 8, 1.</p>
+
+    <h2 id="primos">Implicantes primos e essenciais</h2>
+    <p><b>Implicante primo</b> é um grupo que não pode crescer sem incluir um 0. <b>Implicante essencial</b> é um primo que é o único a cobrir algum 1; ele aparece obrigatoriamente na resposta.</p>
+    <p>O método seguro é: liste os primos, marque os essenciais, e só então escolha o mínimo de primos restantes para cobrir os 1 que sobraram. A seção “Passo a passo” da ferramenta faz exatamente isso para qualquer mapa.</p>
+    <figure>
+      <div class="figmap" data-n="4" data-m="0,1,2,5,6,7,8,9,10,14"></div>
+      <figcaption>Clássico de livro: muita gente responde com 4 termos (incluindo B̄D̄), mas 3 bastam. B̄D̄ é primo, só que não é necessário.</figcaption>
+    </figure>
+
+    <h2 id="x">Condições irrelevantes (X)</h2>
+    <p>Um X marca uma combinação de entradas que nunca acontece ou cuja saída tanto faz, como os códigos 10 a 15 num circuito de BCD. Você pode tratar cada X como 1 quando isso aumenta um grupo e como 0 quando não ajuda. Não é preciso cobrir os X.</p>
+    <figure>
+      <div class="figmap" data-n="4" data-m="1,3,7,11,15" data-d="0,2,5"></div>
+      <figcaption>Os X das células 0 e 2 completam o grupo Ā B̄. O X da célula 5 não ajuda e fica de fora.</figcaption>
+    </figure>
+
+    <h2 id="sop-pos">Soma de produtos e produto de somas</h2>
+    <p><b>SOP</b> (soma de produtos) vem de agrupar os 1: cada grupo vira um produto (E) e os produtos são somados (OU).
+      <b>POS</b> (produto de somas) vem de agrupar os 0: cada grupo vira uma soma (OU) e as somas são multiplicadas (E).</p>
+    <p>Na POS a leitura é invertida: no termo-soma, a variável que vale 0 no grupo aparece normal, e a que vale 1 aparece barrada. Os X valem para as duas formas.</p>
+    <figure>
+      <div class="figmap" data-n="3" data-m="1,3,5,7,6" data-kind="pos"></div>
+      <figcaption>Agrupando os zeros: dois grupos de dois. As duas formas são equivalentes, mas podem ter tamanhos diferentes. Vale conferir as duas.</figcaption>
+    </figure>
+
+    <h2 id="grandes">Mapas de 5 e 6 variáveis</h2>
+    <p>Com 5 variáveis usam-se dois mapas 4×4, um para A=0 e outro para A=1. Com 6, quatro mapas, um para cada valor de AB. As mesmas posições em submapas vizinhos também são adjacentes: um grupo pode ocupar o mesmo retângulo nos dois submapas e, assim, eliminar a variável A.</p>
+    <figure>
+      <div class="figmap" data-n="5" data-m="0,2,4,6,16,18,20,22,9,13,25,29"></div>
+      <figcaption>O grupo B̄Ē aparece nos dois submapas, no mesmo lugar: como vale tanto para A=0 quanto para A=1, a variável A some.</figcaption>
+    </figure>
+
+    <h2 id="circuito">Do mapa ao circuito</h2>
+    <p>A soma de produtos vira um circuito de dois níveis: uma porta E para cada termo e uma porta OU juntando as saídas. Literais barrados passam por inversores. No produto de somas é o contrário: portas OU primeiro e uma porta E na saída.
+      Menos termos significam menos portas, e menos literais significam portas com menos entradas. É por isso que a simplificação importa na prática. A seção “Circuito lógico” da ferramenta desenha esse circuito.</p>
+
+    <h2 id="erros">Erros comuns</h2>
+    <ul>
+      <li>Numerar linhas e colunas em binário (00, 01, 10, 11) em vez de Gray. O mapa fica errado e grupos “vizinhos” deixam de ser vizinhos.</li>
+      <li>Formar grupos de 3, 5 ou 6 células. O tamanho tem que ser potência de 2.</li>
+      <li>Esquecer que as bordas e os cantos se tocam.</li>
+      <li>Fazer grupos pequenos quando cabia um maior.</li>
+      <li>Incluir um grupo que só cobre 1 já cobertos por outros grupos.</li>
+      <li>Achar que todo X precisa ser coberto.</li>
+      <li>Na POS, esquecer de inverter a leitura das variáveis.</li>
+    </ul>
+    <p><a class="btn primary" href="exercicios.html">Praticar com exercícios</a></p>
+  </main>
+
+  <footer class="foot">
+    <span>O site não usa cookies nem coleta dados.</span>
+    <a href="https://github.com/lGuedes01/Karnaugh-Map">Código no GitHub</a>
+  </footer>
+</div>
+</body>
+</html>

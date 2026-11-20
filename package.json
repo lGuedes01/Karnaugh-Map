@@ -1,0 +1,11 @@
+{
+  "name": "karnaugh-map",
+  "private": true,
+  "type": "module",
+  "description": "Mapa de Karnaugh online: simplificação de 2 a 6 variáveis, exercícios e teoria.",
+  "scripts": {
+    "test": "node tests/logic.test.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}
